@@ -9,6 +9,10 @@ def ang(pos1, pos2):
     return math.atan2(pos2[1]-pos1[1], pos2[0]-pos1[0])
 
 class Palette:
+    COLOR_1 = (85, 94, 123)
+    COLOR_5 = (253, 228, 127)
+    COLOR_9 = (238, 238, 238)
+
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     RED = (224, 70, 68)
