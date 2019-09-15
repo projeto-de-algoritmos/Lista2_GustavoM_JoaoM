@@ -1,5 +1,4 @@
-import datetime, graph, math, pygame
-
+import datetime, structs, math, pygame
 from collections import deque
 
 
@@ -36,12 +35,11 @@ class Asset:
         pass
 
 
-class Timer(Asset):
-    
+class Timer(Asset):  
     def __init__(
         self, surface, color, rect, start_angle, stop_angle, width, 
         on_finished=lambda:None
-    ):
+        ):
         self.screen = surface
         self.color = color
         self.rect = rect
@@ -238,8 +236,8 @@ class Graph(Asset):
     user_answer = deque()
 
     def __init__(
-        self, game, graph=graph.Graph(), reveal=False, circle_radius=40,
-        line_thickness=7, editable=False, on_press=lambda:None
+        self, game, graph=structs.Graph(1), reveal=False, circle_radius=25,
+        line_thickness=5, editable=False, on_press=lambda:None
     ):
         self.game = game
         self.graph = graph
@@ -295,8 +293,10 @@ class Graph(Asset):
             self.game.screen, color, (x1, y1), (x2, y2), self.line_thickness
         )
 
+    def on_press(self):
+        pass
     def draw(self):
-        template = self.graph.dijkstra()
+        template = self.graph.path
         for i in range(self.graph.tam):
             if self.editable and self.node_select==i and self.pressed:
                 self.draw_node(i=i, color=Palette.COLOR_8)
@@ -311,14 +311,14 @@ class Graph(Asset):
                 if i+1 not in self.user_answer:
                     self.user_answer.append(i+1)
                 self.draw_node(i=i, color=Palette.BLUE)
-                if self.graph.destination - 1 == i:
+                if self.graph.path[-1] - 1 == i:
                     self.game.answer_question(self.user_answer)
                     self.user_answer = deque()
                     self.node_select = -1
             elif (i+1) not in self.user_answer:
-                if self.graph.source - 1 == i:
+                if self.graph.path[0] - 1 == i:
                     self.draw_node(i=i, color=Palette.BLACK)
-                elif self.graph.destination - 1 == i:
+                elif self.graph.path[-1] - 1 == i:
                     self.draw_node(i=i, color=Palette.GREEN)
                 else:
                     self.draw_node(i=i)
@@ -326,7 +326,7 @@ class Graph(Asset):
                 self.draw_node(i=i, color=Palette.BLUE)
 
         if not self.reveal:
-            for u, v, c in self.graph.edges:
+            for u, v, c in self.graph.edge_list:
                 self.draw_edge(u, v)
         else:
             for pos in range(len(template)-1):

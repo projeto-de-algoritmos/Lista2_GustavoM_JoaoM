@@ -1,5 +1,4 @@
 import pygame
-
 from screens import AnswerScreen, FinishScreen, InfoScreen, MenuScreen, QuestionScreen
 
 
@@ -8,7 +7,7 @@ class Game:
     WIDTH = 1024
     HEIGHT = 768
     GAME_NAME = 'Jogo dos Caminhos'
-    INTRO_TEXT = 'Identifique o menor caminho'
+    INTRO_TEXT = 'Identifique o melhor caminho segundo as regras'
 
     # Game states
     running = True
@@ -70,12 +69,14 @@ class Game:
         self.current_screen = screen.ID
     
     def no_answer_question(self):
-        self.current_graph.dijkstra()
+        print('path', self.current_graph.path)
+        self.current_graph.path
         self.state_question = self.TIMES_UP
         self.change_screen(AnswerScreen)
 
     def answer_question(self, user_answer):
-        if self.current_graph.dijkstra() == user_answer:
+        print('path', self.current_graph.path)
+        if self.current_graph.path == user_answer:
             self.correct_ans+=1
             self.state_question = self.CORRECT_ANSWER
         else:
