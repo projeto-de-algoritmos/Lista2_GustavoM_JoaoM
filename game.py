@@ -1,6 +1,6 @@
 import pygame
 
-from screens import Menu, GameScreen, InfoScreen
+from screens import AnswerScreen, FinishScreen, InfoScreen, MenuScreen, QuestionScreen
 
 
 class Game:
@@ -11,9 +11,23 @@ class Game:
     INTRO_TEXT = 'Identifique o menor caminho'
 
     # Game states
-    running = False
+    running = True
+
     __screens = {}
-    current_screen = Menu.ID
+    current_screen = MenuScreen.ID
+    
+    CORRECT_ANSWER = 1
+    WRONG_ANSWER = 2
+    TIMES_UP = 3
+    state_question = CORRECT_ANSWER
+
+    graphs = []
+    standard_graphs = []
+    current_graph = None
+    current_question = 0
+    max_questions = 0
+    correct_ans = 0
+    wrong_ans = 0
 
     def __init__(self):
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -22,24 +36,57 @@ class Game:
         icon = pygame.image.load('icon.png')
         pygame.display.set_icon(icon)
         
-        self.__screens[Menu.ID] = Menu(self)
+        self.__screens[MenuScreen.ID] = MenuScreen(self)
         self.__screens[InfoScreen.ID] = InfoScreen(self)
-        self.__screens[GameScreen.ID] = GameScreen(self)
+        self.__screens[QuestionScreen.ID] = QuestionScreen(self)
+        self.__screens[AnswerScreen.ID] = AnswerScreen(self)
+        self.__screens[FinishScreen.ID] = FinishScreen(self)
         
         self.clock = pygame.time.Clock()
 
-    def run(self):
+    def run(self, graphs=[]):
         pygame.init()
         
-        self.running = True
+        self.standard_graphs = graphs
+        self.max_questions = len(graphs)
+
         while self.running:
             self.__screens[self.current_screen].run()
     
+    def exit(self):
+        self.running = False
+
     def start_game(self):
-        self.current_screen = GameScreen.ID
+        self.current_question = 0
+        self.wrong_ans = 0
+        self.correct_ans = 0
+        
+        self.graphs = self.standard_graphs
+        self.max_questions = len(self.graphs)
+        
+        self.change_screen(QuestionScreen)
     
     def change_screen(self, screen):
         self.current_screen = screen.ID
+    
+    def no_answer_question(self):
+        self.current_graph.dijkstra()
+        self.state_question = self.TIMES_UP
+        self.change_screen(AnswerScreen)
 
-    def exit(self):
-        self.running = False
+    def answer_question(self, user_answer):
+        if self.current_graph.dijkstra() == user_answer:
+            self.correct_ans+=1
+            self.state_question = self.CORRECT_ANSWER
+        else:
+            self.wrong_ans+=1
+            self.state_question = self.WRONG_ANSWER
+        self.change_screen(AnswerScreen)
+
+    def next_question(self):
+        self.current_question = self.current_question+1 
+        if self.current_question>=self.max_questions:
+            self.current_question = 0
+            self.change_screen(FinishScreen)
+        else:
+            self.change_screen(QuestionScreen)
