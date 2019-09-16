@@ -305,13 +305,11 @@ class Graph(Asset):
         self.editable = editable
         self.truck = truck
         self.set_graph(graph)
-        self.current_node = 0
     def press_node(self, i):
         if self.truck != None:
             if i in self.graph.adj_list[self.current_node]:
                 self.current_node = i
                 self.path.add(i+1)
-                print('Path', self.path)
                 self.node_list[i].default_color = Palette.BLUE
                 self.truck.move(self.positions[i])
         
@@ -327,7 +325,6 @@ class Graph(Asset):
         if self.truck!=None:
             self.truck.start_position = self.positions[0]
             self.truck.end_position = self.positions[0]
-            self.path = {1}
         for k in range(self.graph.tam):
             node = Node(
                 self.game, circle_radius=self.circle_radius, 
@@ -342,7 +339,9 @@ class Graph(Asset):
                 weight=w
             )
             self.edge_list.append(edge)
-        
+        self.current_node = 0
+        self.node_list[0].default_color = Palette.BLUE
+        self.path = {1}
     def draw(self):
         for edge in self.edge_list:
             edge.draw()
