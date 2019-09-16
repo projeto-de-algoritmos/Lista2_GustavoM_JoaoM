@@ -28,12 +28,14 @@ class Graph:
         self.tam = tam
         self.edge_list = []
         self.mst_adj_list = []
+        self.adj_list = []
         for _ in range(self.tam):
             self.mst_adj_list.append(set())
-
+            self.adj_list.append(set())
     def add_edge(self,u,v,w):
         self.edge_list.append([u-1,v-1,w])
-
+        self.adj_list[u-1].add(v-1)
+        self.adj_list[v-1].add(u-1)
     # Arvore geradora máxima
     def kruskal(self):
         self.edge_list =  sorted(self.edge_list, key=lambda item: item[2], reverse=True) 
@@ -75,7 +77,6 @@ class Graph:
         path.append(source+1)
         path.reverse()
         self.path = path
-        print(path)
 
 def read_graphs(path):
     file = open(path)

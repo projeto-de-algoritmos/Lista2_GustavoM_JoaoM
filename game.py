@@ -1,5 +1,5 @@
 import pygame
-from screens import AnswerScreen, FinishScreen, InfoScreen, MenuScreen, QuestionScreen
+from screens import AnswerScreen, FinishScreen, InfoScreen, MenuScreen, QuestionScreen, TestSceen
 
 
 class Game:
@@ -34,13 +34,12 @@ class Game:
         pygame.display.set_caption(self.GAME_NAME)
         icon = pygame.image.load('icon.png')
         pygame.display.set_icon(icon)
-        
         self.__screens[MenuScreen.ID] = MenuScreen(self)
         self.__screens[InfoScreen.ID] = InfoScreen(self)
         self.__screens[QuestionScreen.ID] = QuestionScreen(self)
         self.__screens[AnswerScreen.ID] = AnswerScreen(self)
         self.__screens[FinishScreen.ID] = FinishScreen(self)
-        
+        #self.__screens[TestSceen.ID] = TestSceen(self)
         self.clock = pygame.time.Clock()
 
     def run(self, graphs=[]):
@@ -48,7 +47,7 @@ class Game:
         
         self.standard_graphs = graphs
         self.max_questions = len(graphs)
-
+        self.current_graph = graphs[0]
         while self.running:
             self.__screens[self.current_screen].run()
     

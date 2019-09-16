@@ -1,7 +1,6 @@
 import pygame, math
-
 # from pygame.locals import *
-from assets import Button, Text, Palette, Truck, Timer, Graph
+from assets import Button, Text, Palette, Truck, Timer, Graph, Node, Edge
 from collections import deque
 
 
@@ -138,8 +137,9 @@ class QuestionScreen(Screen):
             position=((self.x_middle),(60)), font_size=30,
             font_color=Palette.COLOR_10
         )
-        self.graph = Graph(game=self.game, reveal=False)
         self.truck = Truck(screen=game.screen, position=(100,160))
+        self.graph = Graph(game=self.game, reveal=False, truck=self.truck)
+        
         
         self.put_asset(self.timer)
         self.put_asset(self.question_number)
@@ -151,8 +151,8 @@ class QuestionScreen(Screen):
 
     def update_function(self):
         self.timer.seconds=(pygame.time.get_ticks() - self.timer.start_timer)/1000
-        self.graph.set_graph(self.game.current_graph)
-        
+        if self.graph.graph != self.game.current_graph:
+            self.graph.set_graph(self.game.current_graph)
         q_number = '( {}/{} )'.format(
             self.game.current_question + 1, self.game.max_questions
         )
@@ -209,7 +209,8 @@ class AnswerScreen(Screen):
         self.put_asset(self.graph)
     
     def update_function(self):
-        self.graph.set_graph(self.game.current_graph)
+        if self.graph.graph != self.game.current_graph:
+            self.graph.set_graph(self.game.current_graph)
         c_ans = 'Respostas certas: {}'.format(self.game.correct_ans)
         w_ans = 'Respostas erradas: {}'.format(self.game.wrong_ans)
         self.wrong_ans.text = w_ans
@@ -251,3 +252,14 @@ class FinishScreen(Screen):
         w_ans = 'Respostas erradas: {}'.format(self.game.wrong_ans)
         self.wrong_ans.text = w_ans
         self.correct_ans.text = c_ans
+
+class TestSceen(Screen):
+    ID = 6
+    def __init__(self, game):
+        super().__init__(game=game, background_color=Palette.COLOR_9)
+        
+        self.graph = Graph(self.game)
+        self.put_asset(self.graph)
+
+    def update_function(self):
+        pass

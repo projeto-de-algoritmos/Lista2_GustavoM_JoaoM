@@ -78,9 +78,10 @@ class Truck(Asset):
         self.screen.blit(self.surface, rect)
 
     def get_event(self, event):
-        mouse_pos = pygame.mouse.get_pos()
-        if event.type == pygame.MOUSEBUTTONUP:
-            self.move(mouse_pos)
+        pass
+        #mouse_pos = pygame.mouse.get_pos()
+        #if event.type == pygame.MOUSEBUTTONUP:
+            #self.move(mouse_pos)
 
     def get_pos(self):
         time_now = datetime.datetime.now()
@@ -229,109 +230,231 @@ class Line(Asset):
                 self.screen, self.color, self.pos1, self.pos2, self.line_thickness
             )
 
-
-class Graph(Asset):
-    node_select = -1
-    pressed = False
-    user_answer = deque()
-
+class Node(Asset):
     def __init__(
-        self, game, graph=structs.Graph(1), reveal=False, circle_radius=25,
-        line_thickness=5, editable=False, on_press=lambda:None
+        self, game, circle_radius=25,  position=(100, 100),
+        color=Palette.COLOR_11, on_press=lambda a:None, on_focus=lambda:None,
+        on_unfocus=lambda:None, ID=0):
+        self.game = game
+        self.circle_radius = circle_radius
+        self.on_press = on_press
+        self.on_focus = on_focus
+        self.on_unfocus = on_unfocus
+        self.position = position
+        self.mouse_over = False
+        self.color = color
+        self.ID = ID
+    def draw(self):
+        pygame.draw.circle(
+            self.game.screen, self.color, self.position, self.circle_radius
+        )
+        
+    def get_event(self, event):
+        mouse_pos = pygame.mouse.get_pos()
+        dist = math.hypot(mouse_pos[0]-self.position[0], mouse_pos[1]-self.position[1])
+        if dist<=self.circle_radius:
+            if event.type== pygame.MOUSEBUTTONUP:
+                self.color = Palette.RED
+                print(self.ID)
+                self.on_press(self.ID)
+            else:
+                self.color = Palette.COLOR_12
+                self.on_focus()
+        else:
+            self.color = Palette.COLOR_11
+            self.on_unfocus()
+
+class Edge(Asset):
+    def __init__(
+        self, game, pos1=(100, 100),  pos2=(500, 500),
+        color=Palette.COLOR_12, line_thickness=5, weight=1,
+        num_padding=15
     ):
         self.game = game
-        self.graph = graph
+        self.pos1 = pos1
+        self.pos2 = pos2
+        self.line_thickness = line_thickness
+        self.color = color
+        ang = math.atan2(pos2[1]-pos1[1], pos2[0]-pos1[0])+math.pi/2
+        ky = num_padding
+        kx = ky*math.tan(ang)
+        xmed = (pos1[0]+pos2[0])//2
+        ymed = (pos1[1]+pos2[1])//2
+        self.weight=Text(
+            screen=self.game.screen, position=(xmed-kx, ymed-ky), 
+            text=str(weight), font_size=30, font_color=color
+        ) 
+
+    def draw(self):
+        pygame.draw.line(
+            self.game.screen, self.color, self.pos1, self.pos2, self.line_thickness
+        )
+        self.weight.draw()
+
+
+class Graph(Asset):
+    def __init__(
+        self, game, graph=structs.Graph(1), reveal=False, circle_radius=25,
+        line_thickness=5, editable=False, truck=None
+        ):
+        self.game = game
         self.reveal = reveal
         self.circle_radius = circle_radius
         self.line_thickness = line_thickness
         self.editable = editable
-        self.on_press = on_press
-        self.positions = get_positions(
-            self.graph.tam, self.game.WIDTH, self.game.HEIGHT
-        )
-        self.answer_color = None
-
-    def set_graph(self, graph):
-        self.graph = graph
-        self.positions = get_positions(
-            self.graph.tam, self.game.WIDTH, self.game.HEIGHT
-        )
-
-    def get_event(self, event):
+        self.truck = truck
+        self.set_graph(graph)
+        self.current_node = 0
+        if truck!=None:
+            self.truck.start_position = self.positions[0]
+            self.truck.end_position = self.positions[0]
+    def press_node(self, i):
+        print('press node ', i)
         mouse_pos = pygame.mouse.get_pos()
-        if event.type == pygame.MOUSEBUTTONUP:
-            self.on_press()
-            self.pressed = True
-        else:
-            self.pressed = False
+        print(mouse_pos)
+        if self.truck != None:
+            if i in self.graph.adj_list[self.current_node]:
+                self.current_node = i
+                self.truck.move(self.positions[i])
+        self.node_list[i].color = Palette.COLOR_12
         
-        select = -1
-        i = 0
-        for position in self.positions:
-            dist = math.hypot(mouse_pos[0]-position[0], mouse_pos[1]-position[1])
-            if dist<=self.circle_radius:
-                select = i
-            i+=1
-        self.node_select = select
-
-    def draw_node(self, i, color=Palette.COLOR_11):
-        pygame.draw.circle(
-            self.game.screen, color, self.positions[i], self.circle_radius
+    def set_graph(self, graph):
+        self.node_list = []
+        self.edge_list = []
+        self.graph = graph
+        self.positions = get_positions( 
+            self.graph.tam, self.game.WIDTH, 
+            self.game.HEIGHT
         )
-    
-    def draw_edge(self, u, v, color=Palette.COLOR_12):
-        pos1 = self.positions[u-1]
-        pos2 = self.positions[v-1]
-        a = pos1[1]-pos2[1]
-        b = pos2[0]-pos1[0]
-        theta = math.atan2(a, b)
-        x1 = pos1[0]+math.cos(theta)*self.circle_radius
-        y1 = pos1[1]-math.sin(theta)*self.circle_radius
-        x2 = pos2[0]-math.cos(theta)*self.circle_radius
-        y2 = pos2[1]+math.sin(theta)*self.circle_radius
-        pygame.draw.line(
-            self.game.screen, color, (x1, y1), (x2, y2), self.line_thickness
-        )
-
-    def on_press(self):
-        pass
+        self.func = []
+        for k in range(self.graph.tam):
+            print('k', k)
+            print('Position', self.positions[k])
+            node = Node(
+                self.game, circle_radius=self.circle_radius, 
+                position=self.positions[k], 
+                on_press=self.press_node, ID=k
+            )
+            self.node_list.append(node)
+        for u, v, w in self.graph.edge_list:
+            edge = Edge(
+                self.game, pos1=self.positions[u], 
+                pos2=self.positions[v], line_thickness=self.line_thickness,
+                weight=w
+            )
+            self.edge_list.append(edge)
+        
     def draw(self):
-        template = self.graph.path
-        for i in range(self.graph.tam):
-            if self.editable and self.node_select==i and self.pressed:
-                self.draw_node(i=i, color=Palette.COLOR_8)
-            elif self.editable and self.node_select==i and not self.pressed:
-                self.draw_node(i=i, color=Palette.COLOR_5)
-            elif self.reveal:
-                if i+1 in template:
-                    self.draw_node(i=i, color=self.answer_color)
-                else:
-                    self.draw_node(i=i)
-            elif not self.editable and self.node_select==i and self.pressed:
-                if i+1 not in self.user_answer:
-                    self.user_answer.append(i+1)
-                self.draw_node(i=i, color=Palette.BLUE)
-                if self.graph.path[-1] - 1 == i:
-                    self.game.answer_question(self.user_answer)
-                    self.user_answer = deque()
-                    self.node_select = -1
-            elif (i+1) not in self.user_answer:
-                if self.graph.path[0] - 1 == i:
-                    self.draw_node(i=i, color=Palette.BLACK)
-                elif self.graph.path[-1] - 1 == i:
-                    self.draw_node(i=i, color=Palette.GREEN)
-                else:
-                    self.draw_node(i=i)
-            else:
-                self.draw_node(i=i, color=Palette.BLUE)
+        for edge in self.edge_list:
+            edge.draw()
+        for node in self.node_list:
+            node.draw()
+    def get_event(self, event):
+        for edge in self.edge_list:
+            edge.get_event(event)
+        for node in self.node_list:
+            node.get_event(event) 
 
-        if not self.reveal:
-            for u, v, c in self.graph.edge_list:
-                self.draw_edge(u, v)
-        else:
-            for pos in range(len(template)-1):
-                self.draw_edge(template[pos], template[pos+1], self.answer_color)
-            self.user_answer = deque()
+# class Graph(Asset):
+#     node_select = -1
+#     pressed = False
+#     user_answer = deque()
+
+#     def __init__(
+#         self, game, graph=structs.Graph(1), reveal=False, circle_radius=25,
+#         line_thickness=5, editable=False, ):
+#         self.game = game
+#         self.graph = graph
+#         self.reveal = reveal
+#         self.circle_radius = circle_radius
+#         self.line_thickness = line_thickness
+#         self.editable = editable
+#         self.positions = get_positions(
+#             self.graph.tam, self.game.WIDTH, self.game.HEIGHT
+#         )
+#         self.answer_color = None
+
+#     def set_graph(self, graph):
+#         self.graph = graph
+#         self.positions = get_positions(
+#             self.graph.tam, self.game.WIDTH, self.game.HEIGHT
+#         )
+
+#     def get_event(self, event):
+#         mouse_pos = pygame.mouse.get_pos()
+#         if event.type == pygame.MOUSEBUTTONUP:
+#             self.on_press()
+#             self.pressed = True
+#         else:
+#             self.pressed = False
+        
+#         select = -1
+#         i = 0
+#         for position in self.positions:
+#             dist = math.hypot(mouse_pos[0]-position[0], mouse_pos[1]-position[1])
+#             if dist<=self.circle_radius:
+#                 select = i
+#             i+=1
+#         self.node_select = select
+
+#     def draw_node(self, i, color=Palette.COLOR_11):
+#         pygame.draw.circle(
+#             self.game.screen, color, self.positions[i], self.circle_radius
+#         )
+    
+#     def draw_edge(self, u, v, color=Palette.COLOR_12):
+#         pos1 = self.positions[u-1]
+#         pos2 = self.positions[v-1]
+#         a = pos1[1]-pos2[1]
+#         b = pos2[0]-pos1[0]
+#         theta = math.atan2(a, b)
+#         x1 = pos1[0]+math.cos(theta)*self.circle_radius
+#         y1 = pos1[1]-math.sin(theta)*self.circle_radius
+#         x2 = pos2[0]-math.cos(theta)*self.circle_radius
+#         y2 = pos2[1]+math.sin(theta)*self.circle_radius
+#         pygame.draw.line(
+#             self.game.screen, color, (x1, y1), (x2, y2), self.line_thickness
+#         )
+
+#     def on_press(self):
+#         pass
+#     def draw(self):
+#         template = self.graph.path
+#         for i in range(self.graph.tam):
+#             if self.editable and self.node_select==i and self.pressed:
+#                 self.draw_node(i=i, color=Palette.COLOR_8)
+#             elif self.editable and self.node_select==i and not self.pressed:
+#                 self.draw_node(i=i, color=Palette.COLOR_5)
+#             elif self.reveal:
+#                 if i+1 in template:
+#                     self.draw_node(i=i, color=self.answer_color)
+#                 else:
+#                     self.draw_node(i=i)
+#             elif not self.editable and self.node_select==i and self.pressed:
+#                 if i+1 not in self.user_answer:
+#                     self.user_answer.append(i+1)
+#                 self.draw_node(i=i, color=Palette.BLUE)
+#                 if self.graph.path[-1] - 1 == i:
+#                     self.game.answer_question(self.user_answer)
+#                     self.user_answer = deque()
+#                     self.node_select = -1
+#             elif (i+1) not in self.user_answer:
+#                 if self.graph.path[0] - 1 == i:
+#                     self.draw_node(i=i, color=Palette.BLACK)
+#                 elif self.graph.path[-1] - 1 == i:
+#                     self.draw_node(i=i, color=Palette.GREEN)
+#                 else:
+#                     self.draw_node(i=i)
+#             else:
+#                 self.draw_node(i=i, color=Palette.BLUE)
+
+#         if not self.reveal:
+#             for u, v, c in self.graph.edge_list:
+#                 self.draw_edge(u, v)
+#         else:
+#             for pos in range(len(template)-1):
+#                 self.draw_edge(template[pos], template[pos+1], self.answer_color)
+#             self.user_answer = deque()
 
 
 def get_positions(tam, screen_width, screen_heigth):
