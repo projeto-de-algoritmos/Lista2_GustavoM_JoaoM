@@ -68,14 +68,13 @@ class Graph:
                     q.clear()
                     break
                 q.append(v)
-        path = []
-        path.append(destination+1)
+        path = set()
+        path.add(destination+1)
         u = destination
         while pred[u]!=source:
-            path.append(pred[u]+1)
+            path.add(pred[u]+1)
             u = pred[u]
-        path.append(source+1)
-        path.reverse()
+        path.add(source+1)
         self.path = path
 
 def read_graphs(path):

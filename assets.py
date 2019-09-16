@@ -60,7 +60,7 @@ class Timer(Asset):
 
 
 class Truck(Asset):
-    default_time = 2.5
+    default_time = 2
     endmove_time = datetime.datetime.now()
 
     def __init__(self, screen, position=(100, 160)):    
@@ -233,7 +233,7 @@ class Line(Asset):
 class Node(Asset):
     def __init__(
         self, game, circle_radius=25,  position=(100, 100),
-        color=Palette.COLOR_11, on_press=lambda a:None, on_focus=lambda:None,
+        default_color=Palette.COLOR_11, on_press=lambda a:None, on_focus=lambda:None,
         on_unfocus=lambda:None, ID=0):
         self.game = game
         self.circle_radius = circle_radius
@@ -242,7 +242,8 @@ class Node(Asset):
         self.on_unfocus = on_unfocus
         self.position = position
         self.mouse_over = False
-        self.color = color
+        self.color = default_color
+        self.default_color = default_color
         self.ID = ID
     def draw(self):
         pygame.draw.circle(
@@ -261,7 +262,7 @@ class Node(Asset):
                 self.color = Palette.COLOR_12
                 self.on_focus()
         else:
-            self.color = Palette.COLOR_11
+            self.color = self.default_color
             self.on_unfocus()
 
 class Edge(Asset):
@@ -275,13 +276,10 @@ class Edge(Asset):
         self.pos2 = pos2
         self.line_thickness = line_thickness
         self.color = color
-        ang = math.atan2(pos2[1]-pos1[1], pos2[0]-pos1[0])+math.pi/2
-        ky = num_padding
-        kx = ky*math.tan(ang)
-        xmed = (pos1[0]+pos2[0])//2
-        ymed = (pos1[1]+pos2[1])//2
+        self.xmed = (pos1[0]+pos2[0])//2
+        self.ymed = (pos1[1]+pos2[1])//2
         self.weight=Text(
-            screen=self.game.screen, position=(xmed-kx, ymed-ky), 
+            screen=self.game.screen, position=(self.xmed, self.ymed), 
             text=str(weight), font_size=30, font_color=color
         ) 
 
@@ -289,13 +287,16 @@ class Edge(Asset):
         pygame.draw.line(
             self.game.screen, self.color, self.pos1, self.pos2, self.line_thickness
         )
+        pygame.draw.circle(
+            self.game.screen, Palette.COLOR_9, (self.xmed, self.ymed), 15
+        )
         self.weight.draw()
 
 
 class Graph(Asset):
     def __init__(
         self, game, graph=structs.Graph(1), reveal=False, circle_radius=25,
-        line_thickness=5, editable=False, truck=None
+        line_thickness=3, editable=False, truck=None
         ):
         self.game = game
         self.reveal = reveal
@@ -305,31 +306,29 @@ class Graph(Asset):
         self.truck = truck
         self.set_graph(graph)
         self.current_node = 0
-        if truck!=None:
-            self.truck.start_position = self.positions[0]
-            self.truck.end_position = self.positions[0]
     def press_node(self, i):
-        print('press node ', i)
-        mouse_pos = pygame.mouse.get_pos()
-        print(mouse_pos)
         if self.truck != None:
             if i in self.graph.adj_list[self.current_node]:
                 self.current_node = i
+                self.path.add(i+1)
+                print('Path', self.path)
+                self.node_list[i].default_color = Palette.BLUE
                 self.truck.move(self.positions[i])
-        self.node_list[i].color = Palette.COLOR_12
+        
         
     def set_graph(self, graph):
         self.node_list = []
-        self.edge_list = []
+        self.edge_list = []   
         self.graph = graph
         self.positions = get_positions( 
             self.graph.tam, self.game.WIDTH, 
             self.game.HEIGHT
         )
-        self.func = []
+        if self.truck!=None:
+            self.truck.start_position = self.positions[0]
+            self.truck.end_position = self.positions[0]
+            self.path = {1}
         for k in range(self.graph.tam):
-            print('k', k)
-            print('Position', self.positions[k])
             node = Node(
                 self.game, circle_radius=self.circle_radius, 
                 position=self.positions[k], 

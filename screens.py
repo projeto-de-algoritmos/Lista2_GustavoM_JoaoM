@@ -158,6 +158,8 @@ class QuestionScreen(Screen):
         )
         c_ans = "Respostas certas: {}".format(self.game.correct_ans)
         w_ans = "Respostas erradas: {}".format(self.game.wrong_ans)
+        if self.graph.graph.tam in self.graph.path:
+            self.game.answer_question(self.graph.path)
         self.question_number.text = q_number
         self.correct_ans.text = c_ans
         self.wrong_ans.text = w_ans
@@ -200,6 +202,8 @@ class AnswerScreen(Screen):
             font_size=42
         )
         self.graph = Graph(game=self.game, reveal=True)
+        self.truck = Truck(screen=game.screen)
+        
 
         self.put_asset(quit_button)
         self.put_asset(next_button)
@@ -207,10 +211,12 @@ class AnswerScreen(Screen):
         self.put_asset(self.wrong_ans)
         self.put_asset(self.answer)
         self.put_asset(self.graph)
+        self.put_asset(self.truck)
     
     def update_function(self):
         if self.graph.graph != self.game.current_graph:
             self.graph.set_graph(self.game.current_graph)
+            self.truck.end_position = self.graph.positions[-1]
         c_ans = 'Respostas certas: {}'.format(self.game.correct_ans)
         w_ans = 'Respostas erradas: {}'.format(self.game.wrong_ans)
         self.wrong_ans.text = w_ans

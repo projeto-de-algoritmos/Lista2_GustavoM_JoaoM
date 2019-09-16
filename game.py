@@ -1,6 +1,6 @@
 import pygame
 from screens import AnswerScreen, FinishScreen, InfoScreen, MenuScreen, QuestionScreen, TestSceen
-
+from time import sleep
 
 class Game:
     # Game constants
