@@ -1,0 +1,6 @@
+Joãozinho é um motorista de um caminhão e precisa entregar
+suas mercadorias para a cidade VERDE
+Em seu caminho ele se depara com várias pontes que possúem 
+limites de carga para a passagem 
+Sem saber quanto de carga ele carrega, Joãozinho precisa de 
+sua ajuda para passar pelas pontes com maior tolerância de carga
