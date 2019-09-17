@@ -492,15 +492,15 @@ def get_positions(tam, screen_width, screen_heigth):
     elif tam==2:
         return [(100, 240), (924, 528)]
     elif tam==3:
-        return [(100, 240), (360, 640), (620, 440)]
+        return [(100, 240), (512, 528), (924, 384)]
     elif tam==4:
-        return [(100, 240), (360, y_mid), (500, y_mid-100), 
-                (700, y_mid)]
+        return [(100, 240), (360, 462), (500, 384), 
+                (924, 528)]
     elif tam==5:
-        return [(100, 240), (x_mid-150, y_mid-50), (x_mid-150, y_mid+150),
-                (x_mid+150, y_mid+150), (x_mid+150, y_mid-50)]
+        return [(100, 240), (360, 462), (500, 384),
+                (700, 528), (924, 384)]
     elif tam==6:
-        return [(100, 240), (x_mid-200, y_mid), (x_mid-100, y_mid+150), 
+        return [(100, 240), (360, 240), (x_mid-100, y_mid+150), 
                 (x_mid+100, y_mid+150), (x_mid+200, y_mid), (x_mid+100, y_mid-150)]
     elif tam==7:
         return [(100, 240), (x_mid-100, y_mid-90), (x_mid-200, y_mid), 
