@@ -343,19 +343,11 @@ class Graph(Asset):
             self.truck.end_position = self.positions[0]
 
         for k in range(self.graph.tam):
-            if (k+1) == self.graph.tam:
-                node = Node(
-                    self.game, circle_radius=self.circle_radius,
-                    position=self.positions[k],
-                    on_press=self.press_node, ID=k,
-                    default_color=Palette.GREEN
-                )
-            else:
-                node = Node(
-                    self.game, circle_radius=self.circle_radius, 
-                    position=self.positions[k], 
-                    on_press=self.press_node, ID=k
-                )
+            node = Node(
+                self.game, circle_radius=self.circle_radius, 
+                position=self.positions[k], 
+                on_press=self.press_node, ID=k
+            )
             self.node_list.append(node)
         edges = self.graph.edge_list
         if self.reveal:
