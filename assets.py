@@ -27,14 +27,24 @@ class Palette:
 
 
 class Asset:
-    
+    visible = True
     def get_event(self, event):
         pass
 
     def draw(self):
         pass
 
-
+class Image(Asset):
+    def __init__(
+        self, screen, src, height=None, width=None, position=(0, 0), 
+    ):
+        self.surface = pygame.image.load(src)
+        if height and width:
+            self.surface = pygame.transform.scale(self.surface, (width, height))
+        self.rect = self.surface.get_rect()
+        self.screen = screen
+    def draw(self):
+        self.screen.blit(self.surface, self.rect)
 class Timer(Asset):  
     def __init__(
         self, surface, color, rect, start_angle, stop_angle, width, 
@@ -208,7 +218,6 @@ class Text(Asset):
 
 
 class Line(Asset):
-
     def __init__(
         self, screen, pos1=(0, 0), pos2=(0, 0), line_thickness=7, visible=True,
         color=Palette.COLOR_12, mouse_guide=False
@@ -340,8 +349,10 @@ class Graph(Asset):
             )
             self.edge_list.append(edge)
         self.current_node = 0
-        self.node_list[0].default_color = Palette.BLUE
+        self.node_list[self.graph.source-1].default_color = Palette.BLACK
+        self.node_list[self.graph.destination-1].default_color = Palette.GREEN
         self.path = {1}
+
     def draw(self):
         for edge in self.edge_list:
             edge.draw()

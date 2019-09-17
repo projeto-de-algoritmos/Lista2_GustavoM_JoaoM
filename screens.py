@@ -1,13 +1,12 @@
 import pygame, math
 # from pygame.locals import *
-from assets import Button, Text, Palette, Truck, Timer, Graph, Node, Edge
+from assets import Button, Text, Palette, Truck, Timer, Graph, Node, Edge, Image
 from collections import deque
 
 
 class Screen:
     # Screen codes
     ID = 0
-
     def __init__(self, game, background_color):
         self.game = game
         self.background_color = background_color
@@ -29,7 +28,8 @@ class Screen:
         self.game.screen.fill(self.background_color)
         self.update_function()    
         for asset in self.assets:
-            asset.draw()
+            if asset.visible:
+                asset.draw()
     
     def run(self):
         self.build_function()
@@ -70,13 +70,23 @@ class MenuScreen(Screen):
         )
 
         play_button = Button(
-            screen=game.screen, position=((self.x_middle), (game.HEIGHT-200)),
+            screen=game.screen, position=((self.x_middle), (game.HEIGHT-100)),
             on_press=self.game.start_game, text='Jogar', width=300
         )
+        self.img = Image(screen=game.screen, height=game.HEIGHT, width=game.WIDTH, src='assets/back.jpg')
+        self.put_asset(self.img)
+
+        definition_text = open('definition.txt').read()
+        definition = Text(
+            screen=self.game.screen, position=((self.x_middle), (self.y_middle-150)),
+            text=definition_text, font_size=24, font_type='robotoslab',
+            font_color=Palette.WHITE
+        )
+        self.put_asset(definition)
 
         self.put_asset(title)
         self.put_asset(sub_title)
-        self.put_asset(info_button)
+        #self.put_asset(info_button)
         self.put_asset(play_button)
 
 
@@ -110,10 +120,8 @@ class InfoScreen(Screen):
 
 class QuestionScreen(Screen):
     ID = 3
-    
     def __init__(self, game):
         super().__init__(game=game, background_color=Palette.COLOR_9)
-        
         # Assets
         self.timer = Timer(
             surface=self.game.screen, color=Palette.GREEN, rect=(20, 20, 60, 60),
@@ -140,7 +148,6 @@ class QuestionScreen(Screen):
         self.truck = Truck(screen=game.screen, position=(100,160))
         self.graph = Graph(game=self.game, reveal=False, truck=self.truck)
         
-        
         self.put_asset(self.timer)
         self.put_asset(self.question_number)
         self.put_asset(self.correct_ans)
@@ -158,7 +165,7 @@ class QuestionScreen(Screen):
         )
         c_ans = "Respostas certas: {}".format(self.game.correct_ans)
         w_ans = "Respostas erradas: {}".format(self.game.wrong_ans)
-        if self.graph.graph.tam in self.graph.path:
+        if self.graph.graph.destination in self.graph.path:
             self.game.answer_question(self.graph.path)
         self.question_number.text = q_number
         self.correct_ans.text = c_ans
@@ -216,7 +223,7 @@ class AnswerScreen(Screen):
     def update_function(self):
         if self.graph.graph != self.game.current_graph:
             self.graph.set_graph(self.game.current_graph)
-            self.truck.end_position = self.graph.positions[-1]
+            self.truck.end_position = self.graph.positions[self.graph.graph.destination-1]
         c_ans = 'Respostas certas: {}'.format(self.game.correct_ans)
         w_ans = 'Respostas erradas: {}'.format(self.game.wrong_ans)
         self.wrong_ans.text = w_ans
@@ -264,8 +271,5 @@ class TestSceen(Screen):
     def __init__(self, game):
         super().__init__(game=game, background_color=Palette.COLOR_9)
         
-        self.graph = Graph(self.game)
-        self.put_asset(self.graph)
-
-    def update_function(self):
-        pass
+        self.img = Image(screen=game.screen, height=game.HEIGHT, width=game.WIDTH, src='assets/back.jpg')
+        self.put_asset(self.img)

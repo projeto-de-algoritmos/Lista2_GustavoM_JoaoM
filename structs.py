@@ -24,6 +24,8 @@ class UnionFind:
 
 # Grafo Direcionado
 class Graph:
+    source = 0
+    destination = 0
     def __init__(self, tam):
         self.tam = tam
         self.edge_list = []
@@ -36,6 +38,7 @@ class Graph:
         self.edge_list.append([u-1,v-1,w])
         self.adj_list[u-1].add(v-1)
         self.adj_list[v-1].add(u-1)
+    
     # Arvore geradora máxima
     def kruskal(self):
         self.edge_list =  sorted(self.edge_list, key=lambda item: item[2], reverse=True) 
@@ -47,6 +50,8 @@ class Graph:
                 uf.union_set(edge[0], edge[1])
     
     def get_path(self, source, destination):
+        self.source = source
+        self.destination = destination
         assert source>0 and source<=self.tam, 'Essa origem não existe'
         assert destination>0 and destination<=self.tam, 'Esse destino não existe'
         source-=1

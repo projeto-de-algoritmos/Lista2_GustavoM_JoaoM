@@ -7,7 +7,7 @@ class Game:
     WIDTH = 1024
     HEIGHT = 768
     GAME_NAME = 'Jogo dos Caminhos'
-    INTRO_TEXT = 'Identifique o melhor caminho segundo as regras'
+    INTRO_TEXT = ''
 
     # Game states
     running = True
