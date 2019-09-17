@@ -1,6 +1,6 @@
 import datetime, structs, math, pygame
 from collections import deque
-
+import random
 
 def dist(pos1, pos2):
     return math.hypot(pos2[0]-pos1[0], pos2[1]-pos1[1])
@@ -496,7 +496,7 @@ def get_positions(tam, screen_width, screen_heigth):
     elif tam==3:
         return [(100, 240), (360, 640), (620, 440)]
     elif tam==4:
-        return [(100, 240), (360, y_mid), (200, y_mid-100), 
+        return [(100, 240), (360, y_mid), (500, y_mid-100), 
                 (700, y_mid)]
     elif tam==5:
         return [(100, 240), (x_mid-150, y_mid-50), (x_mid-150, y_mid+150),
