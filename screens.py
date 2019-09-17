@@ -148,7 +148,7 @@ class QuestionScreen(Screen):
             position=((self.x_middle),(60)), font_size=30,
             font_color=Palette.COLOR_10
         )
-        self.truck = Truck(screen=game.screen, position=(100,160))
+        self.truck = Truck(screen=game.screen, position=(100, 240))
         self.graph = Graph(game=self.game, reveal=False, truck=self.truck)
         
         self.put_asset(self.timer)
@@ -169,20 +169,24 @@ class QuestionScreen(Screen):
         c_ans = "Respostas certas: {}".format(self.game.correct_ans)
         w_ans = "Respostas erradas: {}".format(self.game.wrong_ans)
 
+        print("p2")
+        print(self.graph.truck.start_position)
+        print(self.graph.truck.end_position)
         if self.graph.graph.destination in self.graph.path:
             print(self.truck.get_pos())
             print(self.truck.end_position)
             print(self.graph.path)
             if self.truck.get_pos() == self.truck.end_position:
                 self.game.answer_question(self.graph.path)
+                self.graph.set_graph(self.graph.graph)
         self.question_number.text = q_number
         self.correct_ans.text = c_ans
         self.wrong_ans.text = w_ans
     
     def build_function(self):
         self.game.current_graph = self.game.graphs[self.game.current_question]
-        self.truck.start_position = (100,160)
-        self.truck.end_position = (100,160)
+        self.truck.start_position = (100, 240)
+        self.truck.end_position = (100, 240)
         self.timer.start_timer = pygame.time.get_ticks()
 
 
