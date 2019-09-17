@@ -60,12 +60,12 @@ class Timer(Asset):
         self.seconds = 0
 
     def draw(self):
-        to_timer = 60 - self.seconds
+        to_timer = 15 - self.seconds
         if to_timer < 0:
             self.on_finished()
         pygame.draw.arc(
             self.screen, self.color, self.rect, self.start_angle,
-            self.stop_angle - 0.10471983*self.seconds, self.width
+            self.stop_angle - 0.41866667*self.seconds, self.width
         )
 
 
@@ -239,11 +239,14 @@ class Line(Asset):
                 self.screen, self.color, self.pos1, self.pos2, self.line_thickness
             )
 
+
 class Node(Asset):
+    
     def __init__(
         self, game, circle_radius=25,  position=(100, 100),
         default_color=Palette.COLOR_11, on_press=lambda a:None, on_focus=lambda:None,
-        on_unfocus=lambda:None, ID=0):
+        on_unfocus=lambda:None, ID=0
+    ):
         self.game = game
         self.circle_radius = circle_radius
         self.on_press = on_press
@@ -254,6 +257,7 @@ class Node(Asset):
         self.color = default_color
         self.default_color = default_color
         self.ID = ID
+
     def draw(self):
         pygame.draw.circle(
             self.game.screen, self.color, self.position, self.circle_radius
@@ -263,7 +267,7 @@ class Node(Asset):
         mouse_pos = pygame.mouse.get_pos()
         dist = math.hypot(mouse_pos[0]-self.position[0], mouse_pos[1]-self.position[1])
         if dist<=self.circle_radius:
-            if event.type== pygame.MOUSEBUTTONUP:
+            if event.type==pygame.MOUSEBUTTONUP:
                 self.color = Palette.RED
                 print(self.ID)
                 self.on_press(self.ID)
@@ -274,7 +278,9 @@ class Node(Asset):
             self.color = self.default_color
             self.on_unfocus()
 
+
 class Edge(Asset):
+
     def __init__(
         self, game, pos1=(100, 100),  pos2=(500, 500),
         color=Palette.COLOR_12, line_thickness=5, weight=1,
@@ -303,10 +309,11 @@ class Edge(Asset):
 
 
 class Graph(Asset):
+
     def __init__(
         self, game, graph=structs.Graph(1), reveal=False, circle_radius=25,
         line_thickness=3, editable=False, truck=None
-        ):
+    ):
         self.game = game
         self.reveal = reveal
         self.circle_radius = circle_radius
@@ -314,6 +321,7 @@ class Graph(Asset):
         self.editable = editable
         self.truck = truck
         self.set_graph(graph)
+
     def press_node(self, i):
         if self.truck != None:
             if i in self.graph.adj_list[self.current_node]:
@@ -321,25 +329,33 @@ class Graph(Asset):
                 self.path.add(i+1)
                 self.node_list[i].default_color = Palette.BLUE
                 self.truck.move(self.positions[i])
-        
-        
+
     def set_graph(self, graph):
         self.node_list = []
-        self.edge_list = []   
+        self.edge_list = []
         self.graph = graph
-        self.positions = get_positions( 
-            self.graph.tam, self.game.WIDTH, 
+        self.positions = get_positions(
+            self.graph.tam, self.game.WIDTH,
             self.game.HEIGHT
         )
         if self.truck!=None:
             self.truck.start_position = self.positions[0]
             self.truck.end_position = self.positions[0]
+
         for k in range(self.graph.tam):
-            node = Node(
-                self.game, circle_radius=self.circle_radius, 
-                position=self.positions[k], 
-                on_press=self.press_node, ID=k
-            )
+            if (k+1) == self.graph.tam:
+                node = Node(
+                    self.game, circle_radius=self.circle_radius,
+                    position=self.positions[k],
+                    on_press=self.press_node, ID=k,
+                    default_color=Palette.GREEN
+                )
+            else:
+                node = Node(
+                    self.game, circle_radius=self.circle_radius, 
+                    position=self.positions[k], 
+                    on_press=self.press_node, ID=k
+                )
             self.node_list.append(node)
         for u, v, w in self.graph.edge_list:
             edge = Edge(
@@ -358,11 +374,13 @@ class Graph(Asset):
             edge.draw()
         for node in self.node_list:
             node.draw()
+
     def get_event(self, event):
         for edge in self.edge_list:
             edge.get_event(event)
         for node in self.node_list:
             node.get_event(event) 
+
 
 # class Graph(Asset):
 #     node_select = -1

@@ -141,7 +141,7 @@ class QuestionScreen(Screen):
             font_color=Palette.RED
         )
         question = Text(
-            screen=self.game.screen, text='Selecione o menor caminho.',
+            screen=self.game.screen, text='Aplique o algoritmo de kruskal.',
             position=((self.x_middle),(60)), font_size=30,
             font_color=Palette.COLOR_10
         )
@@ -165,8 +165,13 @@ class QuestionScreen(Screen):
         )
         c_ans = "Respostas certas: {}".format(self.game.correct_ans)
         w_ans = "Respostas erradas: {}".format(self.game.wrong_ans)
+
         if self.graph.graph.destination in self.graph.path:
-            self.game.answer_question(self.graph.path)
+            print(self.truck.get_pos())
+            print(self.truck.end_position)
+            print(self.graph.path)
+            if self.truck.get_pos() == self.truck.end_position:
+                self.game.answer_question(self.graph.path)
         self.question_number.text = q_number
         self.correct_ans.text = c_ans
         self.wrong_ans.text = w_ans
@@ -211,7 +216,6 @@ class AnswerScreen(Screen):
         self.graph = Graph(game=self.game, reveal=True)
         self.truck = Truck(screen=game.screen)
         
-
         self.put_asset(quit_button)
         self.put_asset(next_button)
         self.put_asset(self.correct_ans)

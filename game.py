@@ -75,6 +75,7 @@ class Game:
 
     def answer_question(self, user_answer):
         print('path', self.current_graph.path)
+        print(user_answer)
         if self.current_graph.path == user_answer:
             self.correct_ans+=1
             self.state_question = self.CORRECT_ANSWER
