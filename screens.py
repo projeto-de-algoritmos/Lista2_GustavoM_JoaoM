@@ -170,9 +170,9 @@ class QuestionScreen(Screen):
         w_ans = "Respostas erradas: {}".format(self.game.wrong_ans)
 
         if self.graph.graph.destination in self.graph.path:
-            print(self.truck.get_pos())
-            print(self.truck.end_position)
-            print(self.graph.path)
+            #print(self.truck.get_pos())
+            #print(self.truck.end_position)
+            #print(self.graph.path)
             if self.truck.get_pos() == self.truck.end_position:
                 self.game.answer_question(self.graph.path)
         self.question_number.text = q_number
