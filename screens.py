@@ -44,6 +44,7 @@ class Screen:
             
             self.draw()
             pygame.display.update()
+        pygame.mixer.music.stop()
 
 
 class MenuScreen(Screen):
@@ -51,7 +52,6 @@ class MenuScreen(Screen):
 
     def __init__(self, game):
         super().__init__(game=game, background_color=Palette.COLOR_1)
-        
         # Assets
         title = Text(
             screen=self.game.screen, position=((self.x_middle),(100)),
@@ -88,6 +88,9 @@ class MenuScreen(Screen):
         self.put_asset(sub_title)
         #self.put_asset(info_button)
         self.put_asset(play_button)
+    def build_function(self):
+        pygame.mixer.music.load('sonds/menu_song.mp3')
+        pygame.mixer.music.play(-1)
 
 
 class InfoScreen(Screen):

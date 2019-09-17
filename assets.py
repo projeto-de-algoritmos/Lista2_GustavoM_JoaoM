@@ -357,12 +357,18 @@ class Graph(Asset):
                     on_press=self.press_node, ID=k
                 )
             self.node_list.append(node)
-        for u, v, w in self.graph.edge_list:
+        edges = self.graph.edge_list
+        if self.reveal:
+            edges = self.graph.mst_edge_list
+
+        for u, v, w in edges:
             edge = Edge(
                 self.game, pos1=self.positions[u], 
                 pos2=self.positions[v], line_thickness=self.line_thickness,
                 weight=w
             )
+            if self.reveal:
+                edge.color = Palette.BLUE
             self.edge_list.append(edge)
         self.current_node = 0
         self.node_list[self.graph.source-1].default_color = Palette.BLACK

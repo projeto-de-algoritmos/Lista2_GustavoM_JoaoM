@@ -29,6 +29,7 @@ class Graph:
     def __init__(self, tam):
         self.tam = tam
         self.edge_list = []
+        self.mst_edge_list = []
         self.mst_adj_list = []
         self.adj_list = []
         for _ in range(self.tam):
@@ -47,6 +48,7 @@ class Graph:
             if not uf.is_same_set(edge[0], edge[1]):
                 self.mst_adj_list[edge[0]].add(edge[1])
                 self.mst_adj_list[edge[1]].add(edge[0])
+                self.mst_edge_list.append(edge)
                 uf.union_set(edge[0], edge[1])
     
     def get_path(self, source, destination):
