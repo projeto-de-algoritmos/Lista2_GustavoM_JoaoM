@@ -173,9 +173,9 @@ class QuestionScreen(Screen):
         print(self.graph.truck.start_position)
         print(self.graph.truck.end_position)
         if self.graph.graph.destination in self.graph.path:
-            print(self.truck.get_pos())
-            print(self.truck.end_position)
-            print(self.graph.path)
+            #print(self.truck.get_pos())
+            #print(self.truck.end_position)
+            #print(self.graph.path)
             if self.truck.get_pos() == self.truck.end_position:
                 self.game.answer_question(self.graph.path)
                 self.graph.set_graph(self.graph.graph)

@@ -269,7 +269,7 @@ class Node(Asset):
         if dist<=self.circle_radius:
             if event.type==pygame.MOUSEBUTTONUP:
                 self.color = Palette.RED
-                print(self.ID)
+                #print(self.ID)
                 self.on_press(self.ID)
             else:
                 self.color = Palette.COLOR_12
